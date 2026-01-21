@@ -11,6 +11,7 @@ import storyRouter from './routes/storyRoutes.js';
 import messageRouter from './routes/messageRoutes.js';
 import webhookRoutes from "./routes/webhookRoutes.js";
 // import inngestRoutes from "./routes/inngestRoutes.js";
+import inngestHandler from "./inngest/handler.js";
 
 
 
@@ -23,8 +24,16 @@ app.use(
 );
 // app.use("/api", inngestRoutes);
 
+app.use("/api/inngest", inngestHandler);
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: [
+    "http://localhost:5173",
+    "https://pingup-backend-server.vercel.app"
+  ],
+  credentials: true
+}));
+
 app.use(clerkMiddleware());
 
 app.use("/api", webhookRoutes);
