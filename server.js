@@ -18,6 +18,11 @@ import inngestHandler from "./inngest/handler.js";
 const app = express();
 
 await connectDB();
+app.use((req, res, next) => {
+  res.setHeader("Cache-Control", "no-store");
+  next();
+});
+
 app.use(
   "/api/webhooks/clerk",
   express.raw({ type: "application/json" })
@@ -35,6 +40,13 @@ app.use(cors({
 }));
 
 app.use(clerkMiddleware());
+app.use((req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  next();
+});
+
 
 app.use("/api", webhookRoutes);
 
