@@ -6,29 +6,49 @@ import Message from "../models/Message.js";
 const connections = {}; 
 
 // Controller function for the SSE endpoint
-export const sseController = (req, res)=>{
-    const { userId } = req.params
-    console.log('New client connected : ', userId)
+// export const sseController = (req, res)=>{
+//     const { userId } = req.params
+//     console.log('New client connected : ', userId)
 
-    // Set SSE headers
-    res.setHeader('Content-Type', 'text/event-stream');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('Connection', 'keep-alive');
-    res.setHeader('Access-Control-Allow-Origin', '*');
+//     // Set SSE headers
+//     res.setHeader('Content-Type', 'text/event-stream');
+//     res.setHeader('Cache-Control', 'no-cache');
+//     res.setHeader('Connection', 'keep-alive');
+//     res.setHeader('Access-Control-Allow-Origin', '*');
 
-    // Add the client's response object to the connections object
-    connections[userId] = res
+//     // Add the client's response object to the connections object
+//     connections[userId] = res
 
-    // Send an initial event to the client
-    res.write('log: Connected to SSE stream\n\n');
+//     // Send an initial event to the client
+//     res.write('log: Connected to SSE stream\n\n');
 
-    // Handle client disconnection
-    req.on('close', ()=>{
-        // Remove the client's response object from the connections array
-        delete connections[userId];
-        console.log('Client disconnected');
-    })
-}
+//     // Handle client disconnection
+//     req.on('close', ()=>{
+//         // Remove the client's response object from the connections array
+//         delete connections[userId];
+//         console.log('Client disconnected');
+//     })
+// }
+export const sseController = async (req, res) => {
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+  res.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+
+  res.flushHeaders();
+
+  // keep connection alive
+  const keepAlive = setInterval(() => {
+    res.write(`:\n\n`);
+  }, 25000);
+
+  req.on("close", () => {
+    clearInterval(keepAlive);
+    res.end();
+  });
+};
+
 
 // Send Message
 export const sendMessage = async (req, res) => {

@@ -9,10 +9,11 @@ const messageRouter = express.Router();
 messageRouter.get('/:userId', sseController)
 messageRouter.post('/send', upload.single('image'), protect, sendMessage)
 messageRouter.post('/get', protect, getChatMessages)
+res.setHeader("Content-Type", "text/event-stream");
+res.setHeader("Cache-Control", "no-cache");
+res.setHeader("Connection", "keep-alive");
 res.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
 res.setHeader("Access-Control-Allow-Credentials", "true");
-res.setHeader("Cache-Control", "no-cache");
-res.setHeader("Content-Type", "text/event-stream");
 
 
 export default messageRouter
