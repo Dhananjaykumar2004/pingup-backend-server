@@ -34,13 +34,16 @@ connectDB();
 /* Middleware */
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "https://pingup-backend-server.vercel.app",
-    ],
+    origin: "http://localhost:5173",
+    "https://pingup-backend-server-iv9vee61x.vercel.app/",
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
+// 🔥 VERY IMPORTANT
+app.options("*", cors());
 
 app.use(express.json());
 
@@ -49,7 +52,9 @@ app.use(
   express.raw({ type: "application/json" })
 );
 
+// Clerk MUST come AFTER cors
 app.use(clerkMiddleware());
+
 
 app.use((req, res, next) => {
   res.setHeader("Cache-Control", "no-store");
