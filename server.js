@@ -27,13 +27,16 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      "https://pingup-backend-server-iv9vee61x.vercel.app"
+      "https://pingup-backend-server.vercel.app"
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
+app.options("*", cors());
+
 
 /* Vercel-safe OPTIONS handler */
 app.use((req, res, next) => {
