@@ -29,7 +29,11 @@ const connections = {};
 //         console.log('Client disconnected');
 //     })
 // }
+
+
 export const sseController = async (req, res) => {
+  const { userId } = req.params;
+
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
@@ -38,13 +42,17 @@ export const sseController = async (req, res) => {
 
   res.flushHeaders();
 
-  // keep connection alive
+  // 🔥 STORE CONNECTION
+  connections[userId] = res;
+
+  // keep alive ping
   const keepAlive = setInterval(() => {
-    res.write(`:\n\n`);
+    res.write(":\n\n");
   }, 25000);
 
   req.on("close", () => {
     clearInterval(keepAlive);
+    delete connections[userId];
     res.end();
   });
 };
