@@ -16,52 +16,43 @@ import inngestHandler from "./inngest/handler.js";
 
 const app = express();
 
-/* 🔥 CRITICAL FIX */
+/* Mongo */
 mongoose.set("bufferCommands", false);
 
-const connectDB = async () => {
-  try {
-    await mongoose.connect(process.env.MONGO_URI);
-    console.log("MongoDB connected");
-  } catch (error) {
-    console.error("MongoDB connection failed:", error.message);
-    process.exit(1);
-  }
-};
+await mongoose.connect(process.env.MONGO_URI);
+console.log("MongoDB connected");
 
-connectDB();
-
-/* Middleware */
+/* CORS — MUST BE FIRST */
 app.use(
   cors({
-    origin: "http://localhost:5173",
-    "https://pingup-backend-server-iv9vee61x.vercel.app/",
+    origin: [
+      "http://localhost:5173",
+      "https://pingup-backend-server-iv9vee61x.vercel.app"
+    ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
-// 🔥 VERY IMPORTANT
-app.options("*", cors());
+/* Vercel-safe OPTIONS handler */
+app.use((req, res, next) => {
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+  next();
+});
 
 app.use(express.json());
 
+/* Clerk webhook raw body */
 app.use(
   "/api/webhooks/clerk",
   express.raw({ type: "application/json" })
 );
 
-// Clerk MUST come AFTER cors
+/* Clerk AFTER cors */
 app.use(clerkMiddleware());
-
-
-app.use((req, res, next) => {
-  res.setHeader("Cache-Control", "no-store");
-  res.setHeader("Pragma", "no-cache");
-  res.setHeader("Expires", "0");
-  next();
-});
 
 /* Routes */
 app.use("/api", webhookRoutes);
